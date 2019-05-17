@@ -153,7 +153,7 @@ class GitHub_Installer():
 			xml_str = github.find_xml(full_name)
 			self.sources[addon_id]['version'] = github.get_version_by_xml(BeautifulSoup(xml_str))
 		else:
-			version = downloader.download(url, addon_id, self._destination, True, self.quiet)
+			version = downloader.download(url, full_name, addon_id, self._destination, True, self.quiet)
 			src_file = kodi.vfs.join("special://home/addons", addon_id)
 			kodi.vfs.join(src_file, "addon.xml")
 			xml = kodi.vfs.read_file(kodi.vfs.join(src_file, "addon.xml"), soup=True)

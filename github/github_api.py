@@ -115,8 +115,11 @@ class GitHubAPI(CACHABLE_API):
 		else:
 			page = 1
 		results = response.json()
-		total_count = float(results['total_count'])
-		page_count = int(math.ceil(total_count / page_limit))
+		try:
+			total_count = float(results['total_count'])
+			age_count = int(math.ceil(total_count / page_limit))
+		except:
+			total_count = page_count = 1
 		if page_count > 1 and page == 1:
 			results = response.json()
 			for p in range(page+1, int(page_count+1)):
@@ -273,8 +276,8 @@ def find_zip(user, addon_id):
 			if test.match(r['name']):
 				url = get_download_url(r['repository']['full_name'], r['path'])
 				version = get_version_by_name(r['path'])
-				return url, r['name'], r['repository']['full_name'], version
-	return False, False, False, False
+				return url, r['name'], r['repository']['full_name'], version, r['sha']
+	return False, False, False, False, False
 			
 
 def browse_repository(url):
@@ -283,8 +286,8 @@ def browse_repository(url):
 	from commoncore.beautifulsoup import BeautifulSoup
 	r = requests.get(url, stream=True)
 	if kodi.strings.PY2:
-		import StringIO
-		zip_ref = zipfile.ZipFile(StringIO.StringIO(r.content))
+		from cStringIO import StringIO
+		zip_ref = zipfile.ZipFile(StringIO(r.content))
 	else:
 		from io import BytesIO
 		zip_ref = zipfile.ZipFile(BytesIO(r.content))
@@ -300,7 +303,7 @@ def install_feed(url, local=False):
 	import requests
 	from commoncore import zipfile
 	if kodi.strings.PY2:
-		from StringIO import StringIO as byte_reader
+		from cStringIO import StringIO as byte_reader
 	else:
 		from io import BytesIO as byte_reader
 		
@@ -341,6 +344,36 @@ def batch_installer(url, local=False):
 	xml = BeautifulSoup(zip_ref.read('manifest.xml'))
 	return xml, zip_ref
 
-#def get_download(url):
-#	r = GH.request(url, append_base=False)
-#	return r['download_url']
+def check_sha(full_name, url):
+	try:
+		class GHC(GitHubAPI):
+			def process_response(self, url, response):
+				return response.headers['etag'][3:-1]
+			
+			def request(self, uri, query=None, data=None, append_base=True, headers=None, auth=None, method=None, timeout=None, encode_data=True):
+				self.prepair_query(query)
+				request_args = (uri,)
+				request_kwargs = {"query": query, "data": data, "append_base": append_base, "headers": headers, "auth": auth, "method": method, "timeout": timeout, "encode_data": encode_data}
+				self.set_user_agent(headers)
+				url = self.build_url(uri, query, append_base)
+				self.prepair_request()
+				if type(timeout) is not int or type(timeout) is not float: timeout = float(self.timeout)
+				try:
+					response = self.requests.head(url, headers=self.headers, timeout=timeout)
+				except (requests.exceptions.Timeout, requests.exceptions.ConnectionError, requests.exceptions.TooManyRedirects) as e:
+					self.handel_error(connectionException(e), None, request_args, request_kwargs)
+				if response.status_code == requests.codes.ok or response.status_code == 201:
+					return self.process_response(url, response)
+				else:
+					return self.handel_error(responseException(response.status_code), response, request_args, request_kwargs)
+
+		regex_path=re.compile(full_name + "\/[^\/]+\/(.*)$")
+		match = regex_path.search(url)
+		if match:
+			path = match.group(1)
+			uri = "/repos/{full_name}/contents/{path}".format(full_name=full_name, path=path)
+			return GHC().request(uri)
+	except githubException as e:
+		kodi.log("Invalid remote sha1 hash")
+
+	return False
