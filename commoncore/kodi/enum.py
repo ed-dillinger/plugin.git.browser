@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''*
+"""*
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
@@ -13,12 +13,13 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*'''
+*"""
+
 
 def enum(*sequential, **named):
-	enums = dict(zip(sequential, range(len(sequential))), **named)
-	forward = dict((key, value) for key, value in enums.items())
-	reverse = dict((value, key) for key, value in enums.items())
-	enums['f_map'] = forward
-	enums['r_map'] = reverse
-	return type('Enum', (), enums)
+    enums = dict(zip(sequential, range(len(sequential))), **named)
+    forward = dict((key, value) for key, value in enums.items())
+    reverse = dict((value, key) for key, value in enums.items())
+    enums["f_map"] = forward
+    enums["r_map"] = reverse
+    return type("Enum", (), enums)

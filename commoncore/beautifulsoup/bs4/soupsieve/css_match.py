@@ -3,45 +3,41 @@ from __future__ import unicode_literals
 from datetime import datetime
 from . import util
 import re
-from .import css_types as ct
+from . import css_types as ct
 import unicodedata
 
 # Empty tag pattern (whitespace okay)
-RE_NOT_EMPTY = re.compile('[^ \t\r\n\f]')
+RE_NOT_EMPTY = re.compile("[^ \t\r\n\f]")
 
-RE_NOT_WS = re.compile('[^ \t\r\n\f]+')
+RE_NOT_WS = re.compile("[^ \t\r\n\f]+")
 
 # Relationships
-REL_PARENT = ' '
-REL_CLOSE_PARENT = '>'
-REL_SIBLING = '~'
-REL_CLOSE_SIBLING = '+'
+REL_PARENT = " "
+REL_CLOSE_PARENT = ">"
+REL_SIBLING = "~"
+REL_CLOSE_SIBLING = "+"
 
 # Relationships for :has() (forward looking)
-REL_HAS_PARENT = ': '
-REL_HAS_CLOSE_PARENT = ':>'
-REL_HAS_SIBLING = ':~'
-REL_HAS_CLOSE_SIBLING = ':+'
+REL_HAS_PARENT = ": "
+REL_HAS_CLOSE_PARENT = ":>"
+REL_HAS_SIBLING = ":~"
+REL_HAS_CLOSE_SIBLING = ":+"
 
-NS_XHTML = 'http://www.w3.org/1999/xhtml'
-NS_XML = 'http://www.w3.org/XML/1998/namespace'
+NS_XHTML = "http://www.w3.org/1999/xhtml"
+NS_XML = "http://www.w3.org/XML/1998/namespace"
 
 DIR_FLAGS = ct.SEL_DIR_LTR | ct.SEL_DIR_RTL
 RANGES = ct.SEL_IN_RANGE | ct.SEL_OUT_OF_RANGE
 
-DIR_MAP = {
-    'ltr': ct.SEL_DIR_LTR,
-    'rtl': ct.SEL_DIR_RTL,
-    'auto': 0
-}
+DIR_MAP = {"ltr": ct.SEL_DIR_LTR, "rtl": ct.SEL_DIR_RTL, "auto": 0}
 
 RE_NUM = re.compile(r"^(?P<value>-?(?:[0-9]{1,}(\.[0-9]+)?|\.[0-9]+))$")
-RE_TIME = re.compile(r'^(?P<hour>[0-9]{2}):(?P<minutes>[0-9]{2})$')
-RE_MONTH = re.compile(r'^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})$')
-RE_WEEK = re.compile(r'^(?P<year>[0-9]{4,})-W(?P<week>[0-9]{2})$')
-RE_DATE = re.compile(r'^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})$')
+RE_TIME = re.compile(r"^(?P<hour>[0-9]{2}):(?P<minutes>[0-9]{2})$")
+RE_MONTH = re.compile(r"^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})$")
+RE_WEEK = re.compile(r"^(?P<year>[0-9]{4,})-W(?P<week>[0-9]{2})$")
+RE_DATE = re.compile(r"^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})$")
 RE_DATETIME = re.compile(
-    r'^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})T(?P<hour>[0-9]{2}):(?P<minutes>[0-9]{2})$'
+    r"^(?P<year>[0-9]{4,})-(?P<month>[0-9]{2})-(?P<day>[0-9]{2})T(?P<hour>[0-9]{2}):(?P<minutes>[0-9]{2})$"
 )
 
 MONTHS_30 = (4, 6, 9, 11)  # April, June, September, and November
@@ -82,13 +78,18 @@ class Document(object):
 
         # Fail on unexpected types.
         if not cls.is_tag(tag):
-            raise TypeError("Expected a BeautifulSoup 'Tag', but instead recieved type {}".format(type(tag)))
+            raise TypeError(
+                "Expected a BeautifulSoup 'Tag', but instead recieved type {}".format(
+                    type(tag)
+                )
+            )
 
     @staticmethod
     def is_doc(obj):
         """Is `BeautifulSoup` object."""
 
         import bs4
+
         return isinstance(obj, bs4.BeautifulSoup)
 
     @staticmethod
@@ -96,6 +97,7 @@ class Document(object):
         """Is tag."""
 
         import bs4
+
         return isinstance(obj, bs4.Tag)
 
     @staticmethod
@@ -103,6 +105,7 @@ class Document(object):
         """Is comment."""
 
         import bs4
+
         return isinstance(obj, bs4.Comment)
 
     @staticmethod
@@ -110,6 +113,7 @@ class Document(object):
         """Is declaration."""
 
         import bs4
+
         return isinstance(obj, bs4.Declaration)
 
     @staticmethod
@@ -117,6 +121,7 @@ class Document(object):
         """Is CDATA."""
 
         import bs4
+
         return isinstance(obj, bs4.Declaration)
 
     @staticmethod
@@ -124,6 +129,7 @@ class Document(object):
         """Is processing instruction."""
 
         import bs4
+
         return isinstance(obj, bs4.ProcessingInstruction)
 
     @staticmethod
@@ -131,6 +137,7 @@ class Document(object):
         """Is navigable string."""
 
         import bs4
+
         return isinstance(obj, bs4.NavigableString)
 
     @staticmethod
@@ -138,7 +145,10 @@ class Document(object):
         """Is special string."""
 
         import bs4
-        return isinstance(obj, (bs4.Comment, bs4.Declaration, bs4.CData, bs4.ProcessingInstruction))
+
+        return isinstance(
+            obj, (bs4.Comment, bs4.Declaration, bs4.CData, bs4.ProcessingInstruction)
+        )
 
     @classmethod
     def is_content_string(cls, obj):
@@ -225,14 +235,14 @@ class Document(object):
     def is_html_ns(el):
         """Check if in HTML namespace."""
 
-        ns = getattr(el, 'namespace') if el else None
+        ns = getattr(el, "namespace") if el else None
         return ns and ns == NS_XHTML
 
     @staticmethod
     def get_namespace(el):
         """Get the namespace for the element."""
 
-        namespace = ''
+        namespace = ""
         ns = el.namespace
         if ns:
             namespace = ns
@@ -242,7 +252,7 @@ class Document(object):
     def split_namespace(el, attr_name):
         """Return namespace and attribute name without the prefix."""
 
-        return getattr(attr_name, 'namespace', None), getattr(attr_name, 'name', None)
+        return getattr(attr_name, "namespace", None), getattr(attr_name, "name", None)
 
     @staticmethod
     def get_attribute_by_name(el, name, default=None):
@@ -272,7 +282,7 @@ class Document(object):
     def get_classes(cls, el):
         """Get classes."""
 
-        classes = cls.get_attribute_by_name(el, 'class', [])
+        classes = cls.get_attribute_by_name(el, "class", [])
         if isinstance(classes, util.ustr):
             classes = RE_NOT_WS.findall(classes)
         return classes
@@ -281,7 +291,7 @@ class Document(object):
     def get_text(cls, el):
         """Get text."""
 
-        return ''.join([node for node in el.descendants if cls.is_content_string(node)])
+        return "".join([node for node in el.descendants if cls.is_content_string(node)])
 
 
 class Inputs(object):
@@ -293,7 +303,11 @@ class Inputs(object):
 
         max_days = LONG_MONTH
         if month == FEB:
-            max_days = FEB_LEAP_MONTH if ((year % 4 == 0) and (year % 100 != 0)) or (year % 400 == 0) else FEB_MONTH
+            max_days = (
+                FEB_LEAP_MONTH
+                if ((year % 4 == 0) and (year % 100 != 0)) or (year % 400 == 0)
+                else FEB_MONTH
+            )
         elif month in MONTHS_30:
             max_days = SHORT_MONTH
         return 1 <= day <= max_days
@@ -302,7 +316,9 @@ class Inputs(object):
     def validate_week(year, week):
         """Validate week."""
 
-        max_week = datetime.strptime("{}-{}-{}".format(12, 31, year), "%m-%d-%Y").isocalendar()[1]
+        max_week = datetime.strptime(
+            "{}-{}-{}".format(12, 31, year), "%m-%d-%Y"
+        ).isocalendar()[1]
         if max_week == 1:
             max_week = 53
         return 1 <= week <= max_week
@@ -339,49 +355,56 @@ class Inputs(object):
         if itype == "date":
             m = RE_DATE.match(value)
             if m:
-                year = int(m.group('year'), 10)
-                month = int(m.group('month'), 10)
-                day = int(m.group('day'), 10)
-                if cls.validate_year(year) and cls.validate_month(month) and cls.validate_day(year, month, day):
+                year = int(m.group("year"), 10)
+                month = int(m.group("month"), 10)
+                day = int(m.group("day"), 10)
+                if (
+                    cls.validate_year(year)
+                    and cls.validate_month(month)
+                    and cls.validate_day(year, month, day)
+                ):
                     parsed = (year, month, day)
         elif itype == "month":
             m = RE_MONTH.match(value)
             if m:
-                year = int(m.group('year'), 10)
-                month = int(m.group('month'), 10)
+                year = int(m.group("year"), 10)
+                month = int(m.group("month"), 10)
                 if cls.validate_year(year) and cls.validate_month(month):
                     parsed = (year, month)
         elif itype == "week":
             m = RE_WEEK.match(value)
             if m:
-                year = int(m.group('year'), 10)
-                week = int(m.group('week'), 10)
+                year = int(m.group("year"), 10)
+                week = int(m.group("week"), 10)
                 if cls.validate_year(year) and cls.validate_week(year, week):
                     parsed = (year, week)
         elif itype == "time":
             m = RE_TIME.match(value)
             if m:
-                hour = int(m.group('hour'), 10)
-                minutes = int(m.group('minutes'), 10)
+                hour = int(m.group("hour"), 10)
+                minutes = int(m.group("minutes"), 10)
                 if cls.validate_hour(hour) and cls.validate_minutes(minutes):
                     parsed = (hour, minutes)
         elif itype == "datetime-local":
             m = RE_DATETIME.match(value)
             if m:
-                year = int(m.group('year'), 10)
-                month = int(m.group('month'), 10)
-                day = int(m.group('day'), 10)
-                hour = int(m.group('hour'), 10)
-                minutes = int(m.group('minutes'), 10)
+                year = int(m.group("year"), 10)
+                month = int(m.group("month"), 10)
+                day = int(m.group("day"), 10)
+                hour = int(m.group("hour"), 10)
+                minutes = int(m.group("minutes"), 10)
                 if (
-                    cls.validate_year(year) and cls.validate_month(month) and cls.validate_day(year, month, day) and
-                    cls.validate_hour(hour) and cls.validate_minutes(minutes)
+                    cls.validate_year(year)
+                    and cls.validate_month(month)
+                    and cls.validate_day(year, month, day)
+                    and cls.validate_hour(hour)
+                    and cls.validate_minutes(minutes)
                 ):
                     parsed = (year, month, day, hour, minutes)
         elif itype in ("number", "range"):
             m = RE_NUM.match(value)
             if m:
-                parsed = float(m.group('value'))
+                parsed = float(m.group("value"))
         return parsed
 
 
@@ -442,10 +465,12 @@ class CSSMatch(Document, object):
             if self.is_tag(node):
 
                 # Avoid analyzing certain elements specified in the specification.
-                direction = DIR_MAP.get(util.lower(self.get_attribute_by_name(node, 'dir', '')), None)
+                direction = DIR_MAP.get(
+                    util.lower(self.get_attribute_by_name(node, "dir", "")), None
+                )
                 if (
-                    self.get_tag(node) in ('bdi', 'script', 'style', 'textarea') or
-                    direction is not None
+                    self.get_tag(node) in ("bdi", "script", "style", "textarea")
+                    or direction is not None
                 ):
                     continue  # pragma: no cover
 
@@ -464,8 +489,8 @@ class CSSMatch(Document, object):
             # Analyze text nodes for directionality.
             for c in node:
                 bidi = unicodedata.bidirectional(c)
-                if bidi in ('AL', 'R', 'L'):
-                    return ct.SEL_DIR_LTR if bidi == 'L' else ct.SEL_DIR_RTL
+                if bidi in ("AL", "R", "L"):
+                    return ct.SEL_DIR_LTR if bidi == "L" else ct.SEL_DIR_RTL
         return None
 
     def match_attribute_name(self, el, attr, prefix):
@@ -477,7 +502,7 @@ class CSSMatch(Document, object):
             # If we have not defined namespaces, we can't very well find them, so don't bother trying.
             if prefix:
                 ns = self.namespaces.get(prefix)
-                if ns is None and prefix != '*':
+                if ns is None and prefix != "*":
                     return None
             else:
                 ns = None
@@ -490,7 +515,9 @@ class CSSMatch(Document, object):
                 # Can't match a prefix attribute as we haven't specified one to match
                 # Try to match it normally as a whole `p:a` as selector may be trying `p\:a`.
                 if ns is None:
-                    if (self.is_xml and attr == k) or (not self.is_xml and util.lower(attr) == util.lower(k)):
+                    if (self.is_xml and attr == k) or (
+                        not self.is_xml and util.lower(attr) == util.lower(k)
+                    ):
                         value = v
                         break
                     # Coverage is not finding this even though it is executed.
@@ -499,11 +526,15 @@ class CSSMatch(Document, object):
                     continue  # pragma: no cover
 
                 # We can't match our desired prefix attribute as the attribute doesn't have a prefix
-                if namespace is None or ns != namespace and prefix != '*':
+                if namespace is None or ns != namespace and prefix != "*":
                     continue
 
                 # The attribute doesn't match.
-                if (util.lower(attr) != util.lower(name)) if not self.is_xml else (attr != name):
+                if (
+                    (util.lower(attr) != util.lower(name))
+                    if not self.is_xml
+                    else (attr != name)
+                ):
                     continue
 
                 value = v
@@ -521,18 +552,19 @@ class CSSMatch(Document, object):
 
         match = True
         namespace = self.get_namespace(el)
-        default_namespace = self.namespaces.get('')
-        tag_ns = '' if tag.prefix is None else self.namespaces.get(tag.prefix, None)
+        default_namespace = self.namespaces.get("")
+        tag_ns = "" if tag.prefix is None else self.namespaces.get(tag.prefix, None)
         # We must match the default namespace if one is not provided
-        if tag.prefix is None and (default_namespace is not None and namespace != default_namespace):
+        if tag.prefix is None and (
+            default_namespace is not None and namespace != default_namespace
+        ):
             match = False
         # If we specified `|tag`, we must not have a namespace.
-        elif (tag.prefix is not None and tag.prefix == '' and namespace):
+        elif tag.prefix is not None and tag.prefix == "" and namespace:
             match = False
         # Verify prefix matches
         elif (
-            tag.prefix and
-            tag.prefix != '*' and (tag_ns is None or namespace != tag_ns)
+            tag.prefix and tag.prefix != "*" and (tag_ns is None or namespace != tag_ns)
         ):
             match = False
         return match
@@ -544,9 +576,13 @@ class CSSMatch(Document, object):
         if attributes:
             for a in attributes:
                 value = self.match_attribute_name(el, a.attribute, a.prefix)
-                pattern = a.xml_type_pattern if self.is_xml and a.xml_type_pattern else a.pattern
+                pattern = (
+                    a.xml_type_pattern
+                    if self.is_xml and a.xml_type_pattern
+                    else a.pattern
+                )
                 if isinstance(value, list):
-                    value = ' '.join(value)
+                    value = " ".join(value)
                 if value is None:
                     match = False
                     break
@@ -560,11 +596,12 @@ class CSSMatch(Document, object):
     def match_tagname(self, el, tag):
         """Match tag name."""
 
-        name = (util.lower(tag.name) if not self.is_xml and tag.name is not None else tag.name)
-        return not (
-            name is not None and
-            name not in (self.get_tag(el), '*')
+        name = (
+            util.lower(tag.name)
+            if not self.is_xml and tag.name is not None
+            else tag.name
         )
+        return not (name is not None and name not in (self.get_tag(el), "*"))
 
     def match_tag(self, el, tag):
         """Match the tag."""
@@ -638,7 +675,7 @@ class CSSMatch(Document, object):
 
         found = False
 
-        if relation[0].rel_type.startswith(':'):
+        if relation[0].rel_type.startswith(":"):
             found = self.match_future_relations(el, relation)
         else:
             found = self.match_past_relations(el, relation)
@@ -650,7 +687,7 @@ class CSSMatch(Document, object):
 
         found = True
         for i in ids:
-            if i != self.get_attribute_by_name(el, 'id', ''):
+            if i != self.get_attribute_by_name(el, "id", ""):
                 found = False
                 break
         return found
@@ -679,9 +716,9 @@ class CSSMatch(Document, object):
     def match_nth_tag_type(self, el, child):
         """Match tag type for `nth` matches."""
 
-        return(
-            (self.get_tag(child) == self.get_tag(el)) and
-            (not self.supports_namespaces() or self.get_namespace(child) == self.get_namespace(el))
+        return (self.get_tag(child) == self.get_tag(el)) and (
+            not self.supports_namespaces()
+            or self.get_namespace(child) == self.get_namespace(el)
         )
 
     def match_nth(self, el, nth):
@@ -753,7 +790,9 @@ class CSSMatch(Document, object):
             while 1 <= idx <= last_index + 1:
                 child = None
                 # Evaluate while our child index is still in range.
-                for child in self.get_children(parent, start=index, reverse=factor < 0, tags=False):
+                for child in self.get_children(
+                    parent, start=index, reverse=factor < 0, tags=False
+                ):
                     index += factor
                     if not self.is_tag(child):
                         continue
@@ -833,7 +872,7 @@ class CSSMatch(Document, object):
         form = None
         parent = self.get_parent(el)
         while parent and form is None:
-            if self.get_tag(parent) == 'form':
+            if self.get_tag(parent) == "form":
                 form = parent
             else:
                 parent = self.get_parent(parent)
@@ -852,11 +891,11 @@ class CSSMatch(Document, object):
             for child in self.get_descendants(form):
                 name = self.get_tag(child)
                 # Can't do nested forms (haven't figured out why we never hit this)
-                if name == 'form':  # pragma: no cover
+                if name == "form":  # pragma: no cover
                     break
-                if name in ('input', 'button'):
-                    v = self.get_attribute_by_name(child, 'type', '')
-                    if v and util.lower(v) == 'submit':
+                if name in ("input", "button"):
+                    v = self.get_attribute_by_name(child, "type", "")
+                    if v and util.lower(v) == "submit":
                         self.cached_default_forms.append([form, child])
                         if el is child:
                             match = True
@@ -867,14 +906,14 @@ class CSSMatch(Document, object):
         """Match default."""
 
         match = False
-        name = self.get_attribute_by_name(el, 'name')
+        name = self.get_attribute_by_name(el, "name")
 
         def get_parent_form(el):
             """Find this input's form."""
             form = None
             parent = self.get_parent(el)
             while form is None:
-                if self.get_tag(parent) == 'form':
+                if self.get_tag(parent) == "form":
                     form = parent
                     break
                 last_parent = parent
@@ -902,18 +941,23 @@ class CSSMatch(Document, object):
                 if child is el:
                     continue
                 tag_name = self.get_tag(child)
-                if tag_name == 'input':
+                if tag_name == "input":
                     is_radio = False
                     check = False
                     has_name = False
                     for k, v in self.iter_attributes(child):
-                        if util.lower(k) == 'type' and util.lower(v) == 'radio':
+                        if util.lower(k) == "type" and util.lower(v) == "radio":
                             is_radio = True
-                        elif util.lower(k) == 'name' and v == name:
+                        elif util.lower(k) == "name" and v == name:
                             has_name = True
-                        elif util.lower(k) == 'checked':
+                        elif util.lower(k) == "checked":
                             check = True
-                        if is_radio and check and has_name and get_parent_form(child) is form:
+                        if (
+                            is_radio
+                            and check
+                            and has_name
+                            and get_parent_form(child) is form
+                        ):
                             checked = True
                             break
                 if checked:
@@ -938,11 +982,18 @@ class CSSMatch(Document, object):
             for k, v in self.iter_attributes(parent):
                 attr_ns, attr = self.split_namespace(parent, k)
                 if (
-                    ((not has_ns or is_html_ns) and (util.lower(k) if not self.is_xml else k) == 'lang') or
-                    (
-                        has_ns and not is_html_ns and attr_ns == NS_XML and
-                        (util.lower(attr) if not self.is_xml and attr is not None else attr) == 'lang'
+                    (not has_ns or is_html_ns)
+                    and (util.lower(k) if not self.is_xml else k) == "lang"
+                ) or (
+                    has_ns
+                    and not is_html_ns
+                    and attr_ns == NS_XML
+                    and (
+                        util.lower(attr)
+                        if not self.is_xml and attr is not None
+                        else attr
                     )
+                    == "lang"
                 ):
                     found_lang = v
                     break
@@ -953,10 +1004,12 @@ class CSSMatch(Document, object):
             found_lang = self.cached_meta_lang
 
         # If we couldn't find a language, and the document is HTML, look to meta to determine language.
-        if found_lang is None and (not self.is_xml or (self.html_namespace and self.root.name == 'html')):
+        if found_lang is None and (
+            not self.is_xml or (self.html_namespace and self.root.name == "html")
+        ):
             # Find head
             found = False
-            for tag in ('html', 'head'):
+            for tag in ("html", "head"):
                 found = False
                 for child in self.get_children(parent):
                     if self.get_tag(child) == tag:
@@ -969,13 +1022,16 @@ class CSSMatch(Document, object):
             # Search meta tags
             if found:
                 for child in parent:
-                    if self.is_tag(child) and self.get_tag(child) == 'meta':
+                    if self.is_tag(child) and self.get_tag(child) == "meta":
                         c_lang = False
                         content = None
                         for k, v in self.iter_attributes(child):
-                            if util.lower(k) == 'http-equiv' and util.lower(v) == 'content-language':
+                            if (
+                                util.lower(k) == "http-equiv"
+                                and util.lower(v) == "content-language"
+                            ):
                                 c_lang = True
-                            if util.lower(k) == 'content':
+                            if util.lower(k) == "content":
                                 content = v
                             if c_lang and content:
                                 found_lang = content
@@ -1006,7 +1062,9 @@ class CSSMatch(Document, object):
             return False
 
         # Element has defined direction of left to right or right to left
-        direction = DIR_MAP.get(util.lower(self.get_attribute_by_name(el, 'dir', '')), None)
+        direction = DIR_MAP.get(
+            util.lower(self.get_attribute_by_name(el, "dir", "")), None
+        )
         if direction not in (None, 0):
             return direction == directionality
 
@@ -1017,28 +1075,33 @@ class CSSMatch(Document, object):
 
         # If `input[type=telephone]` and no direction is assigned, assume left to right.
         name = self.get_tag(el)
-        is_input = name == 'input'
-        is_textarea = name == 'textarea'
-        is_bdi = name == 'bdi'
-        itype = util.lower(self.get_attribute_by_name(el, 'type', '')) if is_input else ''
-        if is_input and itype == 'tel' and direction is None:
+        is_input = name == "input"
+        is_textarea = name == "textarea"
+        is_bdi = name == "bdi"
+        itype = (
+            util.lower(self.get_attribute_by_name(el, "type", "")) if is_input else ""
+        )
+        if is_input and itype == "tel" and direction is None:
             return ct.SEL_DIR_LTR == directionality
 
         # Auto handling for text inputs
-        if ((is_input and itype in ('text', 'search', 'tel', 'url', 'email')) or is_textarea) and direction == 0:
+        if (
+            (is_input and itype in ("text", "search", "tel", "url", "email"))
+            or is_textarea
+        ) and direction == 0:
             if is_textarea:
                 value = []
                 for node in el.contents:
                     if self.is_content_string(node):
                         value.append(node)
-                value = ''.join(value)
+                value = "".join(value)
             else:
-                value = self.get_attribute_by_name(el, 'value', '')
+                value = self.get_attribute_by_name(el, "value", "")
             if value:
                 for c in value:
                     bidi = unicodedata.bidirectional(c)
-                    if bidi in ('AL', 'R', 'L'):
-                        direction = ct.SEL_DIR_LTR if bidi == 'L' else ct.SEL_DIR_RTL
+                    if bidi in ("AL", "R", "L"):
+                        direction = ct.SEL_DIR_LTR if bidi == "L" else ct.SEL_DIR_RTL
                         return direction == directionality
                 # Assume left to right
                 return ct.SEL_DIR_LTR == directionality
@@ -1070,11 +1133,11 @@ class CSSMatch(Document, object):
 
         out_of_range = False
 
-        itype = self.get_attribute_by_name(el, 'type').lower()
-        mn = self.get_attribute_by_name(el, 'min', None)
+        itype = self.get_attribute_by_name(el, "type").lower()
+        mn = self.get_attribute_by_name(el, "min", None)
         if mn is not None:
             mn = Inputs.parse_value(itype, mn)
-        mx = self.get_attribute_by_name(el, 'max', None)
+        mx = self.get_attribute_by_name(el, "max", None)
         if mx is not None:
             mx = Inputs.parse_value(itype, mx)
 
@@ -1082,7 +1145,7 @@ class CSSMatch(Document, object):
         if mn is None and mx is None:
             return False
 
-        value = self.get_attribute_by_name(el, 'value', None)
+        value = self.get_attribute_by_name(el, "value", None)
         if value is not None:
             value = Inputs.parse_value(itype, value)
         if value is not None:
@@ -1120,9 +1183,9 @@ class CSSMatch(Document, object):
 
         name = self.get_tag(el)
         return (
-            name.find('-') == -1 or
-            name.find(':') != -1 or
-            self.get_prefix(el) is not None
+            name.find("-") == -1
+            or name.find(":") != -1
+            or self.get_prefix(el) is not None
         )
 
     def match_selectors(self, el, selectors):
@@ -1164,26 +1227,37 @@ class CSSMatch(Document, object):
                 if not self.match_attributes(el, selector.attributes):
                     continue
                 # Verify ranges
-                if selector.flags & RANGES and not self.match_range(el, selector.flags & RANGES):
+                if selector.flags & RANGES and not self.match_range(
+                    el, selector.flags & RANGES
+                ):
                     continue
                 # Verify language patterns
                 if selector.lang and not self.match_lang(el, selector.lang):
                     continue
                 # Verify pseudo selector patterns
-                if selector.selectors and not self.match_subselectors(el, selector.selectors):
+                if selector.selectors and not self.match_subselectors(
+                    el, selector.selectors
+                ):
                     continue
                 # Verify relationship selectors
-                if selector.relation and not self.match_relations(el, selector.relation):
+                if selector.relation and not self.match_relations(
+                    el, selector.relation
+                ):
                     continue
                 # Validate that the current default selector match corresponds to the first submit button in the form
                 if selector.flags & ct.SEL_DEFAULT and not self.match_default(el):
                     continue
                 # Validate that the unset radio button is among radio buttons with the same name in a form that are
                 # also not set.
-                if selector.flags & ct.SEL_INDETERMINATE and not self.match_indeterminate(el):
+                if (
+                    selector.flags & ct.SEL_INDETERMINATE
+                    and not self.match_indeterminate(el)
+                ):
                     continue
                 # Validate element directionality
-                if selector.flags & DIR_FLAGS and not self.match_dir(el, selector.flags & DIR_FLAGS):
+                if selector.flags & DIR_FLAGS and not self.match_dir(
+                    el, selector.flags & DIR_FLAGS
+                ):
                     continue
                 # Validate that the tag contains the specified text.
                 if not self.match_contains(el, selector.contains):
@@ -1222,12 +1296,20 @@ class CSSMatch(Document, object):
     def filter(self):  # noqa A001
         """Filter tag's children."""
 
-        return [node for node in self.tag if not self.is_navigable_string(node) and self.match(node)]
+        return [
+            node
+            for node in self.tag
+            if not self.is_navigable_string(node) and self.match(node)
+        ]
 
     def match(self, el):
         """Match."""
 
-        return not self.is_doc(el) and self.is_tag(el) and self.match_selectors(el, self.selectors)
+        return (
+            not self.is_doc(el)
+            and self.is_tag(el)
+            and self.match_selectors(el, self.selectors)
+        )
 
 
 class CommentsMatch(Document, object):
@@ -1267,7 +1349,7 @@ class SoupSieve(ct.Immutable):
             selectors=selectors,
             namespaces=namespaces,
             custom=custom,
-            flags=flags
+            flags=flags,
         )
 
     def match(self, tag):
@@ -1293,17 +1375,27 @@ class SoupSieve(ct.Immutable):
         """
 
         if CSSMatch.is_tag(iterable):
-            return CSSMatch(self.selectors, iterable, self.namespaces, self.flags).filter()
+            return CSSMatch(
+                self.selectors, iterable, self.namespaces, self.flags
+            ).filter()
         else:
-            return [node for node in iterable if not CSSMatch.is_navigable_string(node) and self.match(node)]
+            return [
+                node
+                for node in iterable
+                if not CSSMatch.is_navigable_string(node) and self.match(node)
+            ]
 
-    @util.deprecated("'comments' is not related to CSS selectors and will be removed in the future.")
+    @util.deprecated(
+        "'comments' is not related to CSS selectors and will be removed in the future."
+    )
     def comments(self, tag, limit=0):
         """Get comments only."""
 
         return [comment for comment in CommentsMatch(tag).get_comments(limit)]
 
-    @util.deprecated("'icomments' is not related to CSS selectors and will be removed in the future.")
+    @util.deprecated(
+        "'icomments' is not related to CSS selectors and will be removed in the future."
+    )
     def icomments(self, tag, limit=0):
         """Iterate comments only."""
 
@@ -1324,17 +1416,16 @@ class SoupSieve(ct.Immutable):
     def iselect(self, tag, limit=0):
         """Iterate the specified tags."""
 
-        for el in CSSMatch(self.selectors, tag, self.namespaces, self.flags).select(limit):
+        for el in CSSMatch(self.selectors, tag, self.namespaces, self.flags).select(
+            limit
+        ):
             yield el
 
     def __repr__(self):  # pragma: no cover
         """Representation."""
 
         return "SoupSieve(pattern={!r}, namespaces={!r}, custom={!r}, flags={!r})".format(
-            self.pattern,
-            self.namespaces,
-            self.custom,
-            self.flags
+            self.pattern, self.namespaces, self.custom, self.flags
         )
 
     __str__ = __repr__

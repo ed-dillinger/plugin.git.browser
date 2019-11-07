@@ -32,10 +32,11 @@ A platform independent file lock that supports the with-statement.
 
 # Modules
 # ------------------------------------------------
-#import kodi
+# import kodi
 import os
 import threading
 import time
+
 try:
     import warnings
 except ImportError:
@@ -68,7 +69,7 @@ __all__ = [
     "WindowsFileLock",
     "UnixFileLock",
     "SoftFileLock",
-    "FileLock"
+    "FileLock",
 ]
 
 __version__ = "2.0.13"
@@ -98,8 +99,7 @@ class Timeout(TimeoutError):
         return None
 
     def __str__(self):
-        temp = "The file lock '{}' could not be acquired."\
-               .format(self.lock_file)
+        temp = "The file lock '{}' could not be acquired.".format(self.lock_file)
         return temp
 
 
@@ -110,11 +110,12 @@ class BaseFileLock(object):
     Implements the base class of a file lock.
     """
 
-    def __init__(self, lock_file, timeout = -1):
+    def __init__(self, lock_file, timeout=-1):
         """
         """
         # The path to the lock file.
-        if lock_file.endswith(".lock") is False: lock_file += ".lock"
+        if lock_file.endswith(".lock") is False:
+            lock_file += ".lock"
         self._lock_file = lock_file
 
         # The file descriptor for the *_lock_file* as it is returned by the
@@ -248,20 +249,20 @@ class BaseFileLock(object):
 
                 with self._thread_lock:
                     if not self.is_locked:
-                        #kodi.log('Attempting to acquire lock %s on %s', lock_id, lock_filename)
+                        # kodi.log('Attempting to acquire lock %s on %s', lock_id, lock_filename)
                         self._acquire()
 
                 if self.is_locked:
-                    #kodi.log('Lock %s acquired on %s', lock_id, lock_filename)
+                    # kodi.log('Lock %s acquired on %s', lock_id, lock_filename)
                     break
                 elif timeout >= 0 and time.time() - start_time > timeout:
-                    #kodi.log('Timeout on acquiring lock %s on %s', lock_id, lock_filename)
+                    # kodi.log('Timeout on acquiring lock %s on %s', lock_id, lock_filename)
                     raise Timeout(self._lock_file)
                 else:
-                    #kodi.log(
+                    # kodi.log(
                     #    'Lock %s not acquired on %s, waiting %s seconds ...',
                     #    lock_id, lock_filename, poll_intervall
-                    #)
+                    # )
                     time.sleep(poll_intervall)
         except:
             # Something did go wrong, so decrement the counter.
@@ -276,7 +277,6 @@ class BaseFileLock(object):
         # in the *__enter__* method of the BaseFileLock, but not released again
         # automatically.
         class ReturnProxy(object):
-
             def __init__(self, lock):
                 self.lock = lock
                 return None
@@ -288,9 +288,9 @@ class BaseFileLock(object):
                 self.lock.release()
                 return None
 
-        return ReturnProxy(lock = self)
+        return ReturnProxy(lock=self)
 
-    def release(self, force = False):
+    def release(self, force=False):
         """
         Releases the file lock.
 
@@ -312,10 +312,10 @@ class BaseFileLock(object):
                     lock_id = id(self)
                     lock_filename = self._lock_file
 
-                    #kodi.log('Attempting to release lock %s on %s', lock_id, lock_filename)
+                    # kodi.log('Attempting to release lock %s on %s', lock_id, lock_filename)
                     self._release()
                     self._lock_counter = 0
-                    #kodi.log('Lock %s released on %s', lock_id, lock_filename)
+                    # kodi.log('Lock %s released on %s', lock_id, lock_filename)
 
         return None
 
@@ -328,12 +328,13 @@ class BaseFileLock(object):
         return None
 
     def __del__(self):
-        self.release(force = True)
+        self.release(force=True)
         return None
 
 
 # Windows locking mechanism
 # ~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 class WindowsFileLock(BaseFileLock):
     """
@@ -354,7 +355,7 @@ class WindowsFileLock(BaseFileLock):
             except (IOError, OSError):
                 try:
                     os.close(fd)
-                except: 
+                except:
                     fd.close()
             else:
                 self._lock_file_fd = fd
@@ -366,7 +367,7 @@ class WindowsFileLock(BaseFileLock):
         msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
         try:
             os.close(fd)
-        except: 
+        except:
             fd.close()
         try:
             os.remove(self._lock_file)
@@ -376,8 +377,10 @@ class WindowsFileLock(BaseFileLock):
             pass
         return None
 
+
 # Unix locking mechanism
 # ~~~~~~~~~~~~~~~~~~~~~~
+
 
 class UnixFileLock(BaseFileLock):
     """
@@ -403,8 +406,10 @@ class UnixFileLock(BaseFileLock):
         os.close(fd)
         return None
 
+
 # Soft lock
 # ~~~~~~~~~
+
 
 class SoftFileLock(BaseFileLock):
     """

@@ -33,9 +33,19 @@ from . import css_types as ct
 from .util import DEBUG, _QUIRKS, deprecated, SelectorSyntaxError  # noqa: F401
 
 __all__ = (
-    'DEBUG', "_QUIRKS", 'SelectorSyntaxError', 'SoupSieve',
-    'closest', 'comments', 'compile', 'filter', 'icomments',
-    'iselect', 'match', 'select', 'select_one'
+    "DEBUG",
+    "_QUIRKS",
+    "SelectorSyntaxError",
+    "SoupSieve",
+    "closest",
+    "comments",
+    "compile",
+    "filter",
+    "icomments",
+    "iselect",
+    "match",
+    "select",
+    "select_one",
 )
 
 SoupSieve = cm.SoupSieve
@@ -47,17 +57,23 @@ def compile(pattern, namespaces=None, flags=0, **kwargs):  # noqa: A001
     if namespaces is not None:
         namespaces = ct.Namespaces(**namespaces)
 
-    custom = kwargs.get('custom')
+    custom = kwargs.get("custom")
     if custom is not None:
         custom = ct.CustomSelectors(**custom)
 
     if isinstance(pattern, SoupSieve):
         if flags:
-            raise ValueError("Cannot process 'flags' argument on a compiled selector list")
+            raise ValueError(
+                "Cannot process 'flags' argument on a compiled selector list"
+            )
         elif namespaces is not None:
-            raise ValueError("Cannot process 'namespaces' argument on a compiled selector list")
+            raise ValueError(
+                "Cannot process 'namespaces' argument on a compiled selector list"
+            )
         elif custom is not None:
-            raise ValueError("Cannot process 'custom' argument on a compiled selector list")
+            raise ValueError(
+                "Cannot process 'custom' argument on a compiled selector list"
+            )
         return pattern
 
     return cp._cached_css_compile(pattern, namespaces, custom, flags)
@@ -87,14 +103,18 @@ def filter(select, iterable, namespaces=None, flags=0, **kwargs):  # noqa: A001
     return compile(select, namespaces, flags, **kwargs).filter(iterable)
 
 
-@deprecated("'comments' is not related to CSS selectors and will be removed in the future.")
+@deprecated(
+    "'comments' is not related to CSS selectors and will be removed in the future."
+)
 def comments(tag, limit=0, flags=0, **kwargs):
     """Get comments only."""
 
     return [comment for comment in cm.CommentsMatch(tag).get_comments(limit)]
 
 
-@deprecated("'icomments' is not related to CSS selectors and will be removed in the future.")
+@deprecated(
+    "'icomments' is not related to CSS selectors and will be removed in the future."
+)
 def icomments(tag, limit=0, flags=0, **kwargs):
     """Iterate comments only."""
 

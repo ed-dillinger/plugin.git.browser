@@ -6,6 +6,7 @@ import sys
 import struct
 import os
 import re
+
 MODULE = os.path.dirname(__file__)
 
 PY3 = sys.version_info >= (3, 0)
@@ -34,12 +35,12 @@ else:
 _QUIRKS = 0x20000
 DEBUG = 0x10000
 
-RE_PATTERN_LINE_SPLIT = re.compile(r'(?:\r\n|(?!\r\n)[\n\r])|$')
+RE_PATTERN_LINE_SPLIT = re.compile(r"(?:\r\n|(?!\r\n)[\n\r])|$")
 
-LC_A = ord('a')
-LC_Z = ord('z')
-UC_A = ord('A')
-UC_Z = ord('Z')
+LC_A = ord("a")
+LC_Z = ord("z")
+UC_A = ord("A")
+UC_Z = ord("Z")
 
 
 def lower(string):
@@ -49,7 +50,7 @@ def lower(string):
     for c in string:
         o = ord(c)
         new_string.append(chr(o + 32) if UC_A <= o <= UC_Z else c)
-    return ''.join(new_string)
+    return "".join(new_string)
 
 
 def upper(string):  # pragma: no cover
@@ -59,7 +60,7 @@ def upper(string):  # pragma: no cover
     for c in string:
         o = ord(c)
         new_string.append(chr(o - 32) if LC_A <= o <= LC_Z else c)
-    return ''.join(new_string)
+    return "".join(new_string)
 
 
 def uchr(i):
@@ -68,7 +69,7 @@ def uchr(i):
     try:
         return unichar(i)
     except ValueError:  # pragma: no cover
-        return struct.pack('i', i).decode('utf-32')
+        return struct.pack("i", i).decode("utf-32")
 
 
 def uord(c):
@@ -96,7 +97,7 @@ class SelectorSyntaxError(SyntaxError):
         if pattern is not None and index is not None:
             # Format pattern to show line and column position
             self.context, self.line, self.col = get_pattern_context(pattern, index)
-            msg = '{}\n  line {}:\n{}'.format(msg, self.line, self.context)
+            msg = "{}\n  line {}:\n{}".format(msg, self.line, self.context)
 
         super(SelectorSyntaxError, self).__init__(msg)
 
@@ -114,21 +115,19 @@ def deprecated(message, stacklevel=2):  # pragma: no cover
             warnings.warn(
                 "'{}' is deprecated. {}".format(func.__name__, message),
                 category=DeprecationWarning,
-                stacklevel=stacklevel
+                stacklevel=stacklevel,
             )
             return func(*args, **kwargs)
+
         return _func
+
     return _decorator
 
 
 def warn_deprecated(message, stacklevel=2):  # pragma: no cover
     """Warn deprecated."""
 
-    warnings.warn(
-        message,
-        category=DeprecationWarning,
-        stacklevel=stacklevel
-    )
+    warnings.warn(message, category=DeprecationWarning, stacklevel=stacklevel)
 
 
 def get_pattern_context(pattern, index):
@@ -142,33 +141,33 @@ def get_pattern_context(pattern, index):
 
     # Split pattern by newline and handle the text before the newline
     for m in RE_PATTERN_LINE_SPLIT.finditer(pattern):
-        linetext = pattern[last:m.start(0)]
+        linetext = pattern[last : m.start(0)]
         if not len(m.group(0)) and not len(text):
-            indent = ''
+            indent = ""
             offset = -1
             col = index - last + 1
         elif last <= index < m.end(0):
-            indent = '--> '
+            indent = "--> "
             offset = (-1 if index > m.start(0) else 0) + 3
             col = index - last + 1
         else:
-            indent = '    '
+            indent = "    "
             offset = None
         if len(text):
             # Regardless of whether we are presented with `\r\n`, `\r`, or `\n`,
             # we will render the output with just `\n`. We will still log the column
             # correctly though.
-            text.append('\n')
-        text.append('{}{}'.format(indent, linetext))
+            text.append("\n")
+        text.append("{}{}".format(indent, linetext))
         if offset is not None:
-            text.append('\n')
-            text.append(' ' * (col + offset) + '^')
+            text.append("\n")
+            text.append(" " * (col + offset) + "^")
             line = current_line
 
         current_line += 1
         last = m.end(0)
 
-    return ''.join(text), line, col
+    return "".join(text), line, col
 
 
 class QuirksWarning(UserWarning):  # pragma: no cover
@@ -182,13 +181,15 @@ def warn_quirks(message, recommend, pattern, index):
     import bs4  # noqa: F401
 
     # Acquire source code line context
-    paths = (MODULE, sys.modules['bs4'].__path__[0])
+    paths = (MODULE, sys.modules["bs4"].__path__[0])
     tb = traceback.extract_stack()
     previous = None
     filename = None
     lineno = None
     for entry in tb:
-        if (PY35 and entry.filename.startswith(paths)) or (not PY35 and entry[0].startswith(paths)):
+        if (PY35 and entry.filename.startswith(paths)) or (
+            not PY35 and entry[0].startswith(paths)
+        ):
             break
         previous = entry
     if previous:
@@ -200,14 +201,14 @@ def warn_quirks(message, recommend, pattern, index):
 
     # Display warning
     warnings.warn_explicit(
-        "\nCSS selector pattern:\n" +
-        "    {}\n".format(message) +
-        "    This behavior is only allowed temporarily for Beautiful Soup's transition to Soup Sieve.\n" +
-        "    In order to confrom to the CSS spec, {}\n".format(recommend) +
-        "    It is strongly recommended the selector be altered to conform to the CSS spec " +
-        "as an exception will be raised for this case in the future.\n" +
-        "pattern line {}:\n{}".format(line, context),
+        "\nCSS selector pattern:\n"
+        + "    {}\n".format(message)
+        + "    This behavior is only allowed temporarily for Beautiful Soup's transition to Soup Sieve.\n"
+        + "    In order to confrom to the CSS spec, {}\n".format(recommend)
+        + "    It is strongly recommended the selector be altered to conform to the CSS spec "
+        + "as an exception will be raised for this case in the future.\n"
+        + "pattern line {}:\n{}".format(line, context),
         QuirksWarning,
         filename,
-        lineno
+        lineno,
     )
