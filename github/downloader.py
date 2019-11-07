@@ -24,6 +24,11 @@ import zipfile
 from commoncore import kodi
 from .github_api import get_version_by_name, get_version_by_xml, check_sha
 
+if kodi.strings.PY2:
+	from cStringIO import StringIO as functionIO
+else:
+	from io import BytesIO as functionIO
+
 class downloaderException(Exception):
 	pass
 
@@ -37,9 +42,9 @@ def hash_func(fname, algorithm="sha1"):
 	except hashException as e:
 		raise hashException("Invalid hash algorithm")
 	if fname.startswith("http"):
+		r = requests.get(fname, stream=True)
 		filesize = str(r.headers["Content-Length"])
 		hasher.update(b"blob " + filesize + "\0")
-		r = requests.get(fname, stream=True)
 		for chunk in r.iter_content(8096):
 			hasher.update(chunk)
 	else:
@@ -66,7 +71,7 @@ def download(url, full_name, addon_id, destination, unzip=False, quiet=False, ve
 	filename = addon_id + '.zip'
 	r = requests.get(url, stream=True)
 	kodi.log("Download: %s" % url)
-	
+
 	if r.status_code == requests.codes.ok:
 		temp_file = kodi.vfs.join(kodi.get_profile(), "downloads")
 		if not kodi.vfs.exists(temp_file): kodi.vfs.mkdir(temp_file, recursive=True)
@@ -116,12 +121,7 @@ def download(url, full_name, addon_id, destination, unzip=False, quiet=False, ve
 				zip_ref = zipfile.ZipFile(temp_file, 'r')
 			else:
 				with open(temp_file, "rb") as zip_file:
-					if kodi.strings.PY2:
-						from cStringIO import StringIO as functionIO
-						zip_ref = zip_file.ZipFile(functionIO(zip_file.read()))
-					else:
-						from io import BytesIO as functionIO
-						zip_ref = zip_file.ZipFile(functionIO(zip_file.read()))
+					zip_ref = zip_file.ZipFile(functionIO(zip_file.read()))
 			zip_ref.extractall(destination)
 			zip_ref.close()
 			kodi.vfs.rm(temp_file, quiet=True)

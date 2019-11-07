@@ -23,7 +23,7 @@ import requests
 import traceback
 from commoncore import kodi
 from commoncore import dom_parser
-from commoncore.baseapi import DB_CACHABLE_API as CACHABLE_API, EXPIRE_TIMES
+from commoncore.baseapi import DB_CACHABLE_API as CACHABLE_API, EXPIRE_TIMES, connectionException, responseException
 from distutils.version import LooseVersion
 try:
 	from urllib.parse import urlencode
